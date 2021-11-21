@@ -1,11 +1,9 @@
 //! this file imports all API routes to prefix their endpoint names and package them up
 const router = require('express').Router();
-const pizzaRoutes = require('./pizza-routes');
-const commentRoutes = require('./comment-routes');
+const userRoutes = require('./user-routes');
+const thoughtRoutes = require('./thought-routes');
 
-
-router.use('/pizzas', pizzaRoutes); // pre-fixes '/pizzas' to routes in pizzaRoutes.js
-router.use('/comments', commentRoutes); // pre-fixes '/comments' to routes in commentRoutes.js
-
+router.use('/users', userRoutes); // pre-fixes '/users' to routes in userRoutes.js
+router.use('/thoughts', thoughtRoutes); // pre-fixes '/toughts' to routes in toughtRoutes.js
 
 module.exports = router;

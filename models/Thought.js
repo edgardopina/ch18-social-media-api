@@ -64,11 +64,10 @@ const ThoughtSchema = new Schema(
    }
 );
 
-//! get total count of comments and replies on retrieval
-//* takes the array comments, and for each element of comments (starting at index 0 - .reduce()'s second
-//* argument), calculates replies.length + 1 parent comment and accummulates in total. Returns total
-ThoughtSchema.virtual('friendCount').get(function () {
-   return this.friends.reduce((total, friend) => total + friend.replies.length + 1, 0);
+//! get total count of reactions on retrieval
+//* takes the array reactions, and calculates reactions.length
+ThoughtSchema.virtual('reactionCount').get(function () {
+   return this.reactions.length;
 });
 
 //! create Thought model using ThoughtSchema
