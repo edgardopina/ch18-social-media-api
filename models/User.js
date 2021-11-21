@@ -1,20 +1,20 @@
 const { Schema, model } = require('mongoose'); //* import Schema ctor and model function
 const dateFormat = require('../utils/dateFormat');
 
-//! create Pizza schema
-const PizzaSchema = new Schema(
+//! create User schema
+const UserSchema = new Schema(
    {
-      pizzaName: {
+      username: {
          type: String,
-         // required: true,
-         required: 'You need to provide a pizza name!',
+         unique: true,
+         required: 'Error: empty user name.',
          trim: true,
       },
-      createdBy: {
+      email: {
          type: String,
-         // required: true,
-         required: 'You need to provide a created by name!',
-         trim: true,
+         required: 'Error: empty email address.',
+         unique: true,
+         // TODO: add email validation
       },
       createdAt: {
          type: Date,
@@ -22,17 +22,17 @@ const PizzaSchema = new Schema(
          //* define getter; each time we retrieve createdAt, it will be formatted by dateFormat()
          get: createdAtVal => dateFormat(createdAtVal),
       },
-      size: {
-         type: String,
-         required: true,
-         enum: ['Personal','Small','Medium','Large','Extra Large'],
-         default: 'Large'
-      },
-      toppings: [],
-      comments: [
+   
+          thoughts: [
          {
             type: Schema.Types.ObjectId,
-            ref: 'Comment',
+            ref: 'Thought',
+         },
+      ],
+      friends: [
+         {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
          },
       ],
    },
@@ -48,11 +48,11 @@ const PizzaSchema = new Schema(
 //! get total count of comments and replies on retrieval
 //* takes the array comments, and for each element of comments (starting at index 0 - .reduce()'s second
 //* argument), calculates replies.length + 1 parent comment and accummulates in total. Returns total
-PizzaSchema.virtual('commentCount').get(function () {
-   return this.comments.reduce((total, comment) => total + comment.replies.length + 1, 0);
+UserSchema.virtual('friendCount').get(function () {
+   return this.friends.reduce((total, friend) => total + friend.replies.length + 1, 0);
 });
 
-//! create Pizza model using PizzaSchema
-const Pizza = model('Pizza', PizzaSchema);
+//! create user model using userSchema
+const User = model('User', UserSchema);
 
-module.exports = Pizza; // exports the Pizza model
+module.exports = User; // exports the User model
