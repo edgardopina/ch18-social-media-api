@@ -15,6 +15,7 @@ const UserSchema = new Schema(
          required: 'Error: empty email address.',
          unique: true,
          // TODO: add email validation
+         match: [/.+@.+\..+/, 'Please enter a valid e-mail address'],
       },
       createdAt: {
          type: Date,
@@ -45,11 +46,10 @@ const UserSchema = new Schema(
    }
 );
 
-//! get total count of comments and replies on retrieval
-//* takes the array comments, and for each element of comments (starting at index 0 - .reduce()'s second
-//* argument), calculates replies.length + 1 parent comment and accummulates in total. Returns total
+//! get total count of friends and reactions on retrieval
+//* takes the array friends, and calculates friends.length + 1
 UserSchema.virtual('friendCount').get(function () {
-   return this.friends.reduce((total, friend) => total + friend.replies.length + 1, 0);
+   return this.friends.length;
 });
 
 //! create user model using userSchema
