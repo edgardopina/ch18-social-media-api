@@ -1,6 +1,7 @@
-const { Schema, model, Types } = require('mongoose'); //* import Schema ctor and model function
-const dateFormat = require('../utils/dateFormat');
+const { Schema, model, Types } = require('mongoose'); //* import Schema ctor, model function
+const dateFormat = require('../utils/dateFormat'); //* import helper for fdate formatting
 
+//! Create Reaction sub-document schema
 const ReactionSchema = new Schema(
    {
       //! set custom id to avoid confusing with parent thought's _id field
@@ -10,13 +11,13 @@ const ReactionSchema = new Schema(
       },
       reactionBody: {
          type: String,
-         required: 'Error: this field cannot be empty.',
+         required: 'Error: reaction body field cannot be empty.',
          trim: true,
-         maxLength: [280, 'Error: this field cannot exceed 280 characters.'],
+         maxLength: [280, 'Error: reaction body field cannot exceed 280 characters.'],
       },
       username: {
          type: String,
-         required: 'Error: this field cannot be empty.',
+         required: 'Error: user name field cannot be empty.',
       },
       createdAt: {
          type: Date,
@@ -33,26 +34,26 @@ const ReactionSchema = new Schema(
    }
 );
 
-//! create Thought schema
+//! Create Thought schema
 const ThoughtSchema = new Schema(
    {
       thoughtText: {
          type: String,
          required: 'Error: empty thought.',
          trim: true,
-         minLength: [1, 'Error: this field must have at least 1 charcater.'],
-         maxLength: [280, 'Error: this field cannot exceed more than 280 characters.'],
+         minLength: [1, 'Error: thought text field must have at least 1 charcater.'],
+         maxLength: [280, 'Error: thought text field cannot exceed more than 280 characters.'],
       },
       createdAt: {
          type: Date,
          default: Date.now(),
-         //* define getter; each time we retrieve createdAt, it will be formatted by dateFormat()
          get: createdAtVal => dateFormat(createdAtVal),
       },
       username: {
          type: String,
          required: 'Error: username cannot be empty.',
       },
+      //* sub-document
       reactions: [ReactionSchema],
    },
    {
@@ -70,7 +71,7 @@ ThoughtSchema.virtual('reactionCount').get(function () {
    return this.reactions.length;
 });
 
-//! create Thought model using ThoughtSchema
+//! Create Thought model
 const Thought = model('Thought', ThoughtSchema);
 
-module.exports = Thought; // exports the Thought model
+module.exports = Thought; //* exports the Thought model

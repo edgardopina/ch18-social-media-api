@@ -1,7 +1,7 @@
 //! file to set up express user router
 const router = require('express').Router();
 
-//! import user-controller functionality and destructure user-controlle into method names
+//* import user-controller functionality and destructure user-controll into its method names
 const {
    getAllUsers,
    getUserById,
@@ -9,21 +9,26 @@ const {
    updateUser,
    deleteUser,
    deleteALLUser,
+   addFriendToUser,
+   removeFriendFromUser,
 } = require('../../controllers/user-controller');
 
-//! set up GET ALL and POST at /api/users
+//* process requests to /api/users route
 router.route('/')
    .get(getAllUsers)
-   .post(createUser);
+   .post(createUser)
+   .delete(deleteALLUser);
 
-//! set up GET one, PUT, and DELETE at /api/users/:id
-router.route('/:id')
+//* preocess requests to /api/users/:userId route
+router.route('/:userId')
    .get(getUserById)
    .put(updateUser)
    .delete(deleteUser);
 
-   router
-   .route('/')
-   .delete(deleteALLUser);
+
+//* process requests to /api/users/:userId/friends/:friendId route
+router.route('/:userId/friends/:friendId')
+   .put(addFriendToUser)
+   .delete(removeFriendFromUser);
 
 module.exports = router;

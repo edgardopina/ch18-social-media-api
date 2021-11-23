@@ -3,7 +3,10 @@ const router = require('express').Router();
 const userRoutes = require('./user-routes');
 const thoughtRoutes = require('./thought-routes');
 
-router.use('/users', userRoutes); // pre-fixes '/users' to routes in userRoutes.js
-router.use('/thoughts', thoughtRoutes); // pre-fixes '/toughts' to routes in toughtRoutes.js
+
+//* all requests coming through the '/api/users' route will processed by the routes in user-routes
+//* all requests coming through the '/api/thoughts' route will processed by the routes in thought-routes
+router.use('/users', userRoutes); 
+router.use('/thoughts', thoughtRoutes); 
 
 module.exports = router;

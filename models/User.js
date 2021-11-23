@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose'); //* import Schema ctor and model function
-const dateFormat = require('../utils/dateFormat');
+const dateFormat = require('../utils/dateFormat'); //* import helper for fdate formatting
 
-//! create User schema
+//! Define User schema
 const UserSchema = new Schema(
    {
       username: {
@@ -13,27 +13,26 @@ const UserSchema = new Schema(
       email: {
          type: String,
          required: 'Error: empty email address.',
-         unique: true,
-         // TODO: add email validation
+         unique: 'The email must be unique',
+         //! TODO: add email validation
          match: [/.+@.+\..+/, 'Please enter a valid e-mail address'],
       },
       createdAt: {
          type: Date,
          default: Date.now(),
-         //* define getter; each time we retrieve createdAt, it will be formatted by dateFormat()
-         get: createdAtVal => dateFormat(createdAtVal),
+         get: createdAtVal => dateFormat(createdAtVal), //* getter; each time we retrieve createdAt, it will be formatted by dateFormat()
       },
-   
-          thoughts: [
+      //* sub-document
+      thoughts: [
          {
-            type: Schema.Types.ObjectId,
-            ref: 'Thought',
+            type: Schema.Types.ObjectId, //* it will be an ObjectId type
+            ref: 'Thought', //* references the Thought model
          },
       ],
       friends: [
          {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
+            type: Schema.Types.ObjectId, //* it will be an ObjectId type
+            ref: 'User', //* references the User model (itself)
          },
       ],
    },
@@ -52,7 +51,7 @@ UserSchema.virtual('friendCount').get(function () {
    return this.friends.length;
 });
 
-//! create user model using userSchema
+//! Create user model
 const User = model('User', UserSchema);
 
-module.exports = User; // exports the User model
+module.exports = User; //* exports the User model

@@ -1,5 +1,6 @@
-const { User } = require('../models');
+//! User model - controller methods
 
+const { User, Thought } = require('../models'); //* import database models
 
 const userController = {
    //! GET ALL users - METHOD
@@ -10,6 +11,10 @@ const userController = {
             path: 'thoughts', //* collection to populate from
             select: '-__v', //* sellect all fields except ('-') __v from 'thoughts'
          })
+         .populate({
+            path: 'friends', //* collection to populate from
+            select: '-__v', //* sellect all fields except ('-') __v from 'friends' (user)
+         })
          .select('-__v') //* sellect all fields except ('-') __v from 'user'
          .sort({ _id: -1 }) //*sorts descending(-1) by '_id'
          .then(dbUserData => res.json(dbUserData))
@@ -19,14 +24,17 @@ const userController = {
          });
    },
 
-   
    //! GET ONE user by id - METHOD
-   //* NOTE that we destructured params from req instead of passsing all req
+   //* destructured params from req instead of passsing all req
    getUserById({ params }, res) {
-      User.findOne({ _id: params.id })
+      User.findOne({ _id: params.userId })
          .populate({
-            path: 'thoughts', //* collection to populate from
-            select: '-__v', //* select all fields except __v
+            path: 'thoughts', 
+            select: '-__v', 
+         })
+         .populate({
+            path: 'friends', 
+            select: '-__v', 
          })
          .select('-__v')
          .then(dbUserData => {
@@ -42,7 +50,6 @@ const userController = {
          });
    },
 
-   
    //! POST CREATE one user - METHOD
    //* MongoDB uses .insertOne() and .insertMany() methods
    //* Mongoose uses .create() to handle one or many inserts
@@ -51,19 +58,13 @@ const userController = {
          .then(dbUserData => res.json(dbUserData))
          .catch(err => res.status(400).json({ message: 'Could not create new user!', err: err }));
    },
-   
-   
+
    //! PUT UPDATE one user by id - METHOD
    updateUser({ params, body }, res) {
-      User.findOneAndUpdate(
-         { _id: params.id },
-         body,
-         {
-            new: true,//* return the updated version of the document
-            runValidators: true, //* enable mongoose runValidators for this schema
-         } 
-         //* the MongoDB and Mongoose methods .updateOne() and .updateMany(), update the doc without returning it
-      )
+      User.findOneAndUpdate({ _id: params.userId }, body, {
+         new: true, //* return the updated version of the document
+         runValidators: true, //* enable mongoose runValidators for this schema
+      })
          .then(dbUserData => {
             if (!dbUserData) {
                res.status(404).json({ message: 'No user found with this id!' });
@@ -74,17 +75,29 @@ const userController = {
          .catch(err => res.status(400).json(err));
    },
 
-   
-   //! DELETE ONE user by id - METHOD
+   //! DELETE ONE user by id & its associated thoughts - METHOD
    deleteUser({ params }, res) {
-      //* findOneAndDelete() returns more data than .deleteOne() and .deleteMany() methods
-      User.findOneAndDelete({ _id: params.id })
+      User.findOne({ _id: params.userId })
          .then(dbUserData => {
             if (!dbUserData) {
                res.status(404).json({ message: 'No user found with this id!' });
                return;
             }
-            res.json(dbUserData);
+            return Thought.deleteMany({ _id: { $in: dbUserData.thoughts } });
+         })
+         .then(dbUserData => {
+            User.findOneAndDelete({ _id: params.userId })
+               .then(dbUserData => {
+                  if (!dbUserData) {
+                     res.status(404).json({ message: 'No user found with this id!' });
+                     return;
+                  }
+                  res.json(dbUserData);
+               })
+               .catch(err => {
+                  console.log(err);
+                  res.status(400).json(err);
+               });
          })
          .catch(err => {
             console.log(err);
@@ -92,10 +105,63 @@ const userController = {
          });
    },
 
-   
    //! DELETE ALL users - METHOD
    deleteALLUser({ body }, res) {
-      User.remove({}).then(dbThoughtData => res.json(dbThoughtData));
+      User.remove({}).then(dbUserData => res.json(dbUserData));
+   },
+
+   //! UPDATE user by adding a friend - METHOD
+   addFriendToUser({ params }, res) {
+      User.findOne({ _id: params.friendId })
+         .then(({ _id }) => {
+            if (!_id) {
+               res.status(404).json({ message: 'No friend found with this id!' });
+               return;
+            }
+            return User.findOneAndUpdate(
+               { _id: params.userId }, //
+               { $push: { friends: _id } },
+               { new: true }
+            )
+               .then(dbUserData => {
+                  if (!dbUserData) {
+                     res.status(404).json({ message: 'No user found with this id!' });
+                     return;
+                  }
+                  res.json(dbUserData);
+               })
+               .catch(err => {
+                  res.json(err);
+               });
+         })
+         .catch(err => res.status(400).json(err));
+   },
+
+   //! UPDATE user by removing a friend from friends list - METHOD
+   removeFriendFromUser({ params }, res) {
+      User.findOne({ _id: params.friendId })
+         .then(({ _id }) => {
+            if (!_id) {
+               res.status(404).json({ message: 'No friend found with this id!' });
+               return;
+            }
+            return User.findOneAndUpdate(
+               { _id: params.userId }, //
+               { $pull: { friends: _id } },
+               { new: true }
+            )
+               .then(dbUserData => {
+                  if (!dbUserData) {
+                     res.status(404).json({ message: 'No user found with this id!' });
+                     return;
+                  }
+                  res.json(dbUserData);
+               })
+               .catch(err => {
+                  res.json(err);
+               });
+         })
+         .catch(err => res.status(400).json(err));
    },
 };
 
