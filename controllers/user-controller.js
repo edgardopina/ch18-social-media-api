@@ -18,24 +18,15 @@ const userController = {
          .select('-__v') //* sellect all fields except ('-') __v from 'user'
          .sort({ _id: -1 }) //*sorts descending(-1) by '_id'
          .then(dbUserData => res.json(dbUserData))
-         .catch(err => {
-            console.log(err);
-            res.status(400).json(err);
-         });
+         .catch(err => res.status(400).json(err));
    },
 
    //! GET ONE user by id - METHOD
    //* destructured params from req instead of passsing all req
    getUserById({ params }, res) {
       User.findOne({ _id: params.userId })
-         .populate({
-            path: 'thoughts', 
-            select: '-__v', 
-         })
-         .populate({
-            path: 'friends', 
-            select: '-__v', 
-         })
+         .populate({ path: 'thoughts', select: '-__v' })
+         .populate({ path: 'friends', select: '-__v' })
          .select('-__v')
          .then(dbUserData => {
             if (!dbUserData) {
@@ -44,10 +35,7 @@ const userController = {
             }
             res.json(dbUserData);
          })
-         .catch(err => {
-            console.log(err);
-            res.status(400).json(err);
-         });
+         .catch(err => res.status(400).json(err));
    },
 
    //! POST CREATE one user - METHOD
@@ -60,11 +48,15 @@ const userController = {
    },
 
    //! PUT UPDATE one user by id - METHOD
-   updateUser({ params, body }, res) {
-      User.findOneAndUpdate({ _id: params.userId }, body, {
-         new: true, //* return the updated version of the document
-         runValidators: true, //* enable mongoose runValidators for this schema
-      })
+   updateUserById({ params, body }, res) {
+      User.findOneAndUpdate(
+         { _id: params.userId }, //
+         body,
+         {
+            new: true, //* return the updated version of the document
+            runValidators: true, //* enable mongoose runValidators for this schema
+         }
+      )
          .then(dbUserData => {
             if (!dbUserData) {
                res.status(404).json({ message: 'No user found with this id!' });
@@ -76,7 +68,7 @@ const userController = {
    },
 
    //! DELETE ONE user by id & its associated thoughts - METHOD
-   deleteUser({ params }, res) {
+   deleteUserById({ params }, res) {
       User.findOne({ _id: params.userId })
          .then(dbUserData => {
             if (!dbUserData) {
@@ -87,22 +79,10 @@ const userController = {
          })
          .then(dbUserData => {
             User.findOneAndDelete({ _id: params.userId })
-               .then(dbUserData => {
-                  if (!dbUserData) {
-                     res.status(404).json({ message: 'No user found with this id!' });
-                     return;
-                  }
-                  res.json(dbUserData);
-               })
-               .catch(err => {
-                  console.log(err);
-                  res.status(400).json(err);
-               });
+               .then(dbUserData => res.json(dbUserData))
+               .catch(err => res.status(400).json(err));
          })
-         .catch(err => {
-            console.log(err);
-            res.status(400).json(err);
-         });
+         .catch(err => res.status(400).json(err));
    },
 
    //! DELETE ALL users - METHOD
@@ -130,9 +110,7 @@ const userController = {
                   }
                   res.json(dbUserData);
                })
-               .catch(err => {
-                  res.json(err);
-               });
+               .catch(err => res.json(err));
          })
          .catch(err => res.status(400).json(err));
    },
@@ -157,9 +135,7 @@ const userController = {
                   }
                   res.json(dbUserData);
                })
-               .catch(err => {
-                  res.json(err);
-               });
+               .catch(err => res.json(err));
          })
          .catch(err => res.status(400).json(err));
    },

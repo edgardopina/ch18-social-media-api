@@ -6,17 +6,17 @@ const thoughtController = {
    //! GET all throughts - METHOD
    getAllThoughts({ body }, res) {
       Thought.find({})
-      .then(dbThoughtData => res.json(dbThoughtData))
-      .catch(err => res.status(404).json(err));
+         .then(dbThoughtData => res.json(dbThoughtData))
+         .catch(err => res.status(404).json(err));
    },
-   
+
    //! DELETE all throughts - METHOD
    removeAllThoughts({ body }, res) {
       Thought.remove({})
-      .then(dbThoughtData => res.json(dbThoughtData))
-      .catch(err => res.status(404).json(err));
+         .then(dbThoughtData => res.json(dbThoughtData))
+         .catch(err => res.status(404).json(err));
    },
-   
+
    //! CREATE ONE throught to one user - METHOD
    addThought({ params, body }, res) {
       Thought.create(body)
@@ -34,9 +34,7 @@ const thoughtController = {
             }
             res.json(dbUserData);
          })
-         .catch(err => {
-            res.json(err);
-         });
+         .catch(err => res.json(err));
    },
 
    //* remove thought from user
@@ -72,9 +70,7 @@ const thoughtController = {
             }
             res.json(dbThoughtData);
          })
-         .catch(err => {
-            res.status(400).json(err);
-         });
+         .catch(err => res.status(400).json(err));
    },
 
    updateThoughtById({ body, params }, res) {
@@ -90,7 +86,6 @@ const thoughtController = {
             if (!dbThoughtData) {
                return res.status(404).json({ message: "No 'Thought' found with this id." });
             }
-            console.log('Processed thought update');
             res.json(dbThoughtData);
          })
          .catch(err => res.json(err));
@@ -106,10 +101,7 @@ const thoughtController = {
             }
             res.json(dbUserData);
          })
-         .catch(err => {
-            console.log(err);
-            res.status(400).json(err);
-         });
+         .catch(err => res.status(400).json(err));
    },
 
    addReaction({ params, body }, res) {
